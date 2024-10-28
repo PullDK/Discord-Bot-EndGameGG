@@ -1,3 +1,4 @@
+import time
 import discord
 from discord.ext import commands
 import json
@@ -46,6 +47,7 @@ async def on_ready():
 
 @client.event
 async def on_voice_state_update(member, before, after):
+    print(time)  # Add this line to see if 'time' is accessible
     user_id = str(member.id)
 
     if after.channel is not None:
@@ -77,14 +79,6 @@ async def add_points(member, points):
     await assign_role(member, data["points"][user_id], data["roles"], data["notify_channel"])  # Passa o canal para notificação
     save_data(data)
 
-@client.command()
-async def horasp(ctx, seconds: int = None, points: int = None):
-    if seconds is None or points is None:
-        await ctx.send("Uso correto: `!horasp segundos pontos`")
-        return
-
-    points_per_time[seconds] = points
-    await ctx.send(f'Configuração: {points} pontos para {seconds} segundos em call.')
 
 class AddPointsModal(discord.ui.Modal):
     def __init__(self, user: discord.Member):
