@@ -10,7 +10,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
-intents.voice_states = True  # Habilitar eventos de estado de voz
 
 client = commands.Bot(command_prefix='!', intents=intents)
 
@@ -35,38 +34,10 @@ def ensure_guild_data(guild_id):
         save_data(data)
         
 
-
-# Dicionário para armazenar o tempo em chamada
-user_voice_times = {}
-# Dicionário para armazenar a configuração de pontos por tempo
-points_per_time = {}
-
 @client.event
 async def on_ready():
     print('Bot já está em execução')
 
-@client.event
-async def on_voice_state_update(member, before, after):
-    print(time)  # Add this line to see if 'time' is accessible
-    user_id = str(member.id)
-
-    if after.channel is not None:
-        if user_id not in user_voice_times:
-            user_voice_times[user_id] = time.time()
-    else:
-        if user_id in user_voice_times:
-            duration = time.time() - user_voice_times[user_id]
-            await update_points(member, duration)
-            del user_voice_times[user_id]
-
-async def update_points(member, duration):
-    points = 0
-    for time_limit, point_value in points_per_time.items():
-        if duration >= time_limit:
-            points += point_value
-
-    if points > 0:
-        await add_points(member, points)
 
 async def add_points(member, points):
     data = load_data()
