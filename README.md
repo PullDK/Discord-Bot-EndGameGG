@@ -28,7 +28,7 @@ Este é um bot de Discord desenvolvido para gerenciar pontos de usuários em um 
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/SeuUsuario/SeuRepositorio.git
+   git clone https://github.com/PullDK/Discord-Bot-EndGamegg
    cd SeuRepositorio
    ```
 
