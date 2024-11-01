@@ -27,7 +27,7 @@ def regras(tree, id_do_servidor):
             embed.add_field(name="Ganhar Pontos", value=ganhando, inline=False)
 
             # Adiciona regras de perder pontos
-            perdendo = "\n".join([f"{regra['descricao']} ({regra['pontos']} pontos)" for regra in dados["regras"]["perder"].values()]) or "Nenhuma regra encontrada."
+            perdendo = "\n".join([f"{regra['descricao']} (-{regra['pontos']} pontos)" for regra in dados["regras"]["perder"].values()]) or "Nenhuma regra encontrada."
             embed.add_field(name="Perder Pontos", value=perdendo, inline=False)
 
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -69,7 +69,7 @@ def regras(tree, id_do_servidor):
 
             # Adiciona regras de perder pontos
             for regra_id, regra in dados["regras"]["perder"].items():
-                embed.add_field(name=f"ID {regra_id}: {regra['descricao']}", value=f"({regra['pontos']} pontos)", inline=False)
+                embed.add_field(name=f"ID {regra_id}: {regra['descricao']}", value=f"(-{regra['pontos']} pontos)", inline=False)
 
             await interaction.response.send_message(embed=embed, ephemeral=True)
 

@@ -30,7 +30,7 @@
             "max": 999
         }
     },
-    "regras": {
+        "regras": {
         "ganhar": {
             "1": {
                 "pontos": 5,
@@ -38,7 +38,7 @@
             },
             "2": {
                 "pontos": 10,
-                "descricao": "Ficar at\u00e9 4 da madrugada"
+                "descricao": "Ficar at\u00e9 \u00e0s 4 da madrugada"
             },
             "3": {
                 "pontos": 10,
@@ -46,25 +46,25 @@
             },
             "4": {
                 "pontos": 20,
-                "descricao": "Deixar algo **MUITO** impotante para ficar em call"
+                "descricao": "Deixar algo **MUITO** importante para ficar em call"
             },
             "5": {
                 "pontos": 2,
-                "descricao": "Deixar de fazer algo basico da vida para ficar em call"
+                "descricao": "Deixar de fazer algo b\u00e1sico da vida para ficar em call"
             },
             "6": {
                 "pontos": 3,
-                "descricao": "Jogar o jogo que todo mundo ta jogando"
+                "descricao": "Jogar o jogo que todo mundo est\u00e1 jogando"
             }
         },
         "perder": {
             "1": {
                 "pontos": 5,
-                "descricao": "Mutar sem falar nada"
+                "descricao": "Mutar sem avisar"
             },
             "2": {
                 "pontos": 5,
-                "descricao": "Sair do nada da call"
+                "descricao": "Sair de repente da call"
             },
             "3": {
                 "pontos": 5,
@@ -72,8 +72,9 @@
             },
             "4": {
                 "pontos": 10,
-                "descricao": "Discuss\u00e3o seria. Os pontos ser\u00e3o retirados de todos os envolvidos"
+                "descricao": "Discuss\u00e3o s\u00e9ria. Os pontos ser\u00e3o retirados de todos os envolvidos"
             }
         }
     }
+
 }
