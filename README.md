@@ -1,6 +1,4 @@
-# Criando um arquivo README.md para o bot de Discord.
 
-readme_content = """
 # Discord Bot
 
 Este é um bot de Discord desenvolvido para gerenciar pontos de usuários em um servidor. Ele permite que os administradores adicionem ou removam pontos dos usuários, além de gerenciar regras de ganhos e perdas de pontos.
@@ -32,3 +30,24 @@ Este é um bot de Discord desenvolvido para gerenciar pontos de usuários em um 
    ```bash
    git clone https://github.com/SeuUsuario/SeuRepositorio.git
    cd SeuRepositorio
+   ```
+
+2. Instale as dependências necessárias:
+   ```bash
+   pip install discord.py
+   ```
+
+3. Configure suas credenciais do bot no arquivo `config/config.py`.
+
+4. Execute o bot:
+   ```bash
+   python main.py
+   ```
+
+## Contribuições
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir um "pull request" ou "issue" para sugestões ou melhorias.
+
+## Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
