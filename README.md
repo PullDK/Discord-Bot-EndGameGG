@@ -1,167 +1,91 @@
-# Discord Bot de Pontos e Regras
 
-## Descrição
-Este bot do Discord é projetado para gerenciar um sistema de pontos e regras dentro de um servidor. Os usuários podem ganhar ou perder pontos com base em ações específicas, e o bot atribui cargos automaticamente com base na quantidade de pontos que um usuário possui.
+# EndGameGG
+
+EndGameGG é um bot para Discord desenvolvido em Python, focado em gerenciar pontos, cargos e regras em um servidor. Ele utiliza uma base de dados MySQL para armazenar informações de pontos dos usuários, regras de ganho e perda de pontos, e cargos associados a intervalos de pontos. Esse bot facilita a gamificação dentro do servidor Discord, onde os membros podem acumular ou perder pontos com base em ações específicas.
+
+## Instalação e Configuração
+
+### Pré-requisitos
+- **Python 3.8+**
+- **Bibliotecas Python:** `mysql-connector-python`, `discord.py`
+- **Servidor MySQL** para armazenar dados de pontos, regras e cargos
+
+### Passos de Instalação
+
+1. Clone o repositório do bot:
+   ```bash
+   git clone <URL do repositório>
+   ```
+2. Instale as dependências:
+   ```bash
+   pip install mysql-connector-python discord.py
+   ```
+3. Configure a conexão ao banco de dados MySQL no código. Atualize as credenciais em `db/MySql.py` com seu `host`, `user`, `password`, e `database`.
+
+4. Inicie o bot executando:
+   ```bash
+   python main.py
+   ```
+
+### Configuração do Banco de Dados
+Certifique-se de que o banco de dados MySQL contém as tabelas necessárias. O código criará automaticamente as tabelas `pontos`, `regras` e `cargos` se não existirem.
 
 ## Estrutura do Projeto
 
-A estrutura básica do projeto é a seguinte:
-```
-/comandos
-    ├── Adicionar_Pontos.py
-    ├── Cargos.py
-    ├── Comandos.py
-    ├── Editar_regras.py
-    ├── Pontos.py
-    ├── Regras.py
-    └── Remover_Pontos.py
-/db
-    └── pontos.py
-/config
-    └── config_cargos.py
-dados.json
-Main.py
-```
+- **main.py**: Arquivo principal que inicia o bot e registra os comandos.
+- **commands/**: Diretório com módulos de comandos, incluindo `pontos`, `cargos`, `regras`, etc.
+- **db/**: Diretório contendo o módulo `MySql.py` para operações de banco de dados.
 
-## Funcionalidades do Bot
+## Comandos Principais
 
-### Comandos
+### 1. `/pontos`
+Exibe os pontos dos usuários e seus respectivos cargos. Permite que os administradores adicionem ou removam pontos dos usuários.
 
-#### 1. Adicionar Pontos (`/adicionar_pontos`)
-- **Descrição:** Adiciona uma quantidade específica de pontos a um usuário mencionado.
-- **Uso:** `/adicionar_pontos @usuário 10`
-- **Funcionamento:**
-    - Carrega os dados do arquivo JSON.
-    - Verifica se o usuário mencionado já tem pontos registrados. Se sim, adiciona a quantidade especificada; caso contrário, inicializa os pontos desse usuário.
-    - Salva as alterações no arquivo JSON.
-    - Chama a função `atribuir_cargo` para atualizar o cargo do usuário com base em sua nova quantidade de pontos.
+### 2. `/cargos`
+Comando para gerenciar cargos com base nos pontos. Administradores podem adicionar ou remover cargos.
 
-#### 2. Remover Pontos (`/remover_pontos`)
-- **Descrição:** Remove uma quantidade específica de pontos de um usuário mencionado.
-- **Uso:** `/remover_pontos @usuário 5`
-- **Funcionamento:**
-    - Carrega os dados do arquivo JSON.
-    - Verifica se o usuário tem pontos registrados e subtrai a quantidade especificada, garantindo que o total não fique negativo.
-    - Salva os dados atualizados.
-    - Chama a função `atribuir_cargo` para garantir que o cargo do usuário seja atualizado de acordo com os pontos restantes.
+### 3. `/regras`
+Gerencia as regras para ganho ou perda de pontos:
+   - **Adicionar**: Adiciona uma nova regra de ganhar ou perder pontos.
+   - **Listar**: Lista todas as regras atuais, organizadas por tipo.
+   - **Remover**: Remove uma regra existente.
 
-#### 3. Visualizar Pontos (`/pontos`)
-- **Descrição:** Mostra todos os usuários e seus pontos, juntamente com seus respectivos cargos.
-- **Uso:** `/pontos`
-- **Funcionamento:**
-    - Carrega os dados do arquivo JSON.
-    - Cria uma embed com uma lista de usuários, seus pontos e os cargos que possuem.
-    - Se não houver usuários registrados, informa que nenhum usuário foi encontrado.
+## Estrutura das Tabelas no Banco de Dados
 
-#### 4. Configurar Cargos (`/cargos`)
-- **Descrição:** Adiciona ou remove cargos com base na quantidade de pontos.
-- **Uso:**
-    - Para adicionar: `/cargos @cargo 10 20`
-    - Para remover: `/cargos @cargo`
-- **Funcionamento:**
-    - Carrega os dados do arquivo JSON.
-    - Se nenhum valor de ponto mínimo ou máximo for fornecido, remove o cargo do JSON.
-    - Se valores forem fornecidos, adiciona ou atualiza o cargo no JSON com os limites especificados.
-  
-#### 5. Gerenciar Regras (`/regras`)
-- **Descrição:** Adiciona, lista ou remove regras para ganhar ou perder pontos.
-- **Uso:**
-    - Para listar regras: `/regras`
-    - Para adicionar: `/regras adicionar ganhar 10 "elogiar amigo"`
-    - Para remover: `/regras retirar ganhar 1`
-- **Funcionamento:**
-    - Carrega os dados do arquivo JSON.
-    - Se a ação for `adicionar`, verifica se todos os parâmetros necessários estão presentes, cria uma nova regra com um ID único e salva os dados.
-    - Se a ação for `id`, lista todas as regras com seus IDs.
-    - Se a ação for `retirar`, remove a regra correspondente com base no tipo e ID.
+- **pontos**
+   - `user_id`: ID do usuário no Discord (chave primária)
+   - `pontos`: Número de pontos do usuário
 
-#### 6. Comandos (`/comandos`)
-- **Descrição:** Mostra todos os comandos disponíveis e exemplos de uso.
-- **Uso:** `/comandos`
-- **Funcionamento:**
-    - Cria uma embed que lista todos os comandos disponíveis e seus exemplos de uso.
+- **regras**
+   - `id`: Identificador único da regra (chave primária)
+   - `tipo`: Indica se a regra é para "ganhar" ou "perder" pontos
+   - `descricao`: Descrição da regra
+   - `pontos`: Quantidade de pontos associados à regra
 
-### Funções
+- **cargos**
+   - `cargo_id`: ID do cargo no Discord (chave primária)
+   - `min`: Pontuação mínima necessária para o cargo
+   - `max`: Pontuação máxima permitida para o cargo
 
-#### 1. `carregar_dados()`
-- **Descrição:** Carrega dados do arquivo `dados.json`.
-- **Funcionamento:**
-    - Verifica se o arquivo existe.
-    - Se existir, tenta carregar os dados. Se falhar, retorna um dicionário padrão.
-    - Se não existir, retorna um dicionário padrão.
+## Funções Principais
 
-#### 2. `salvar_dados(dados)`
-- **Descrição:** Salva os dados no arquivo `dados.json`.
-- **Funcionamento:**
-    - Escreve os dados passados no arquivo JSON com formatação indentada.
+- **carregar_pontos(user_id)**: Carrega os pontos de um usuário específico.
+- **salvar_pontos(user_id, pontos)**: Salva ou atualiza a pontuação de um usuário.
+- **carregar_regras()**: Carrega todas as regras de ganho e perda de pontos.
+- **salvar_regras(dados)**: Salva ou atualiza regras de pontuação.
+- **carregar_cargos()**: Carrega todos os cargos definidos no banco de dados.
+- **carregar_todos_pontos()**: Retorna todos os pontos dos usuários.
 
-#### 3. `atribuir_cargo(usuario)`
-- **Descrição:** Atribui ou remove cargos de um usuário com base em seus pontos.
-- **Funcionamento:**
-    - Obtém os pontos do usuário.
-    - Remove cargos que o usuário não atende mais.
-    - Atribui o cargo correto com base na quantidade de pontos do usuário.
+## Exemplo de Uso
 
-## Estrutura de Dados
+### Exibindo as Regras
+Usuários podem usar o comando `/regras` para ver as regras de ganho e perda de pontos no servidor.
 
-O arquivo `dados.json` possui a seguinte estrutura:
-
-```json
-{
-    "pontos": {
-        "user_id": 100
-    },
-    "cargos": {
-        "cargo_id": {
-            "min": 0,
-            "max": 100
-        }
-    },
-    "regras": {
-        "ganhar": {
-            "1": {
-                "pontos": 10,
-                "descricao": "elogiar amigo"
-            }
-        },
-        "perder": {
-            "1": {
-                "pontos": -10,
-                "descricao": "sair da call"
-            }
-        }
-    }
-}
-```
-
-- **pontos:** Dicionário onde as chaves são IDs de usuários e os valores são a quantidade de pontos.
-- **cargos:** Dicionário onde as chaves são IDs de cargos e os valores são limites de pontos (mínimo e máximo).
-- **regras:** Dicionário que contém regras para ganhar ou perder pontos, organizadas por tipo.
-
-## Requisitos
-- Python 3.8 ou superior
-- Biblioteca `discord.py`
-
-## Instalação
-
-1. Clone este repositório.
-2. Instale as dependências necessárias:
-   ```bash
-   pip install discord.py
-   ```
-3. Configure seu bot no [Discord Developer Portal](https://discord.com/developers/applications).
-4. Substitua as credenciais do bot no seu código conforme necessário.
-
-## Uso
-
-1. Execute seu bot:
-   ```bash
-   python seu_bot.py
-   ```
-2. Adicione o bot ao seu servidor e comece a interagir com os comandos disponíveis.
+### Adicionando Pontos
+Um administrador pode adicionar pontos a um usuário específico com o comando `/pontos adicionar` e remover pontos com `/pontos remover`.
 
 ## Contribuição
-Sinta-se à vontade para contribuir para este projeto. Faça um fork do repositório, faça suas alterações e envie um pull request.
+Para contribuir com o projeto, crie uma nova branch com suas alterações e envie um pull request. Aguarde a aprovação antes da integração.
 
 ## Licença
-Este projeto está licenciado sob a Licença MIT. Consulte o arquivo LICENSE para obter mais informações.
+Este projeto é distribuído sob a licença MIT.
