@@ -31,6 +31,10 @@ class Client(discord.Client):
         if not self.synced:
             await tree.sync(guild=discord.Object(id=id_do_servidor))
             self.synced = True
+        
+        # Atualiza a presença do bot
+        await self.change_presence(activity=discord.Game(name="Minecraft 2"))
+        
         print(f"Entramos como {self.user}.")
 
 aclient = Client()

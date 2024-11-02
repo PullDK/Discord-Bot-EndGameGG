@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados, salvar_dados
+from db.MySql import carregar_regras, salvar_regras
 
 def regras(tree, id_do_servidor):
     @tree.command(
@@ -9,7 +9,8 @@ def regras(tree, id_do_servidor):
         description='Gerencia as regras para ganhar ou perder pontos.'
     )
     async def regras_command(interaction: discord.Interaction, acao: str = None, tipo: str = None, pontos: str = None, *, descricao: str = None):
-        dados = carregar_dados()
+        # Carrega as regras do banco de dados
+        dados = carregar_regras()
 
         # Inicializa as regras se não existirem
         if "regras" not in dados:
@@ -18,7 +19,9 @@ def regras(tree, id_do_servidor):
         # Mostrar todas as regras se o comando for usado sem parâmetros
         if acao is None:
             embed = discord.Embed(title="Regras de Pontos", color=discord.Color.blue())
-            if not dados["regras"]["ganhar"] and not dados["regras"]["perder"]:
+            
+            # Verifica se existem regras
+            if not dados.get("regras", {}).get("ganhar") and not dados.get("regras", {}).get("perder"):
                 await interaction.response.send_message("Nenhuma regra encontrada.", ephemeral=True)
                 return
             
@@ -32,6 +35,7 @@ def regras(tree, id_do_servidor):
 
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+
 
         # Adicionar regra
         if acao.lower() == "adicionar":
@@ -56,7 +60,7 @@ def regras(tree, id_do_servidor):
             regra_id = str(len(dados["regras"][categoria]) + 1)  # Mantenha o ID como string
             dados["regras"][categoria][regra_id] = {"pontos": pontos, "descricao": descricao}
 
-            salvar_dados(dados)  # Salva os dados no arquivo JSON
+            salvar_regras(dados)  # Salva os dados no banco de dados
             await interaction.response.send_message(f"Regra adicionada: {descricao} ({'+' if categoria == 'ganhar' else ''}{pontos} pontos).", ephemeral=True)
 
         # Listar regras com IDs
@@ -91,7 +95,7 @@ def regras(tree, id_do_servidor):
             if regra_id in dados["regras"][categoria]:
                 descricao = dados["regras"][categoria][regra_id]["descricao"]
                 del dados["regras"][categoria][regra_id]  # Remove a regra
-                salvar_dados(dados)  # Salva os dados no arquivo JSON
+                salvar_regras(dados)  # Salva os dados no banco de dados
                 await interaction.response.send_message(f"Regra removida: {descricao}.", ephemeral=True)
             else:
                 await interaction.response.send_message(f"Regra com ID {regra_id} não encontrada na categoria '{tipo}'.", ephemeral=True)

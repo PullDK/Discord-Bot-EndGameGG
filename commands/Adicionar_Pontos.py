@@ -1,7 +1,6 @@
-# Comandos/addp.py
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados, salvar_dados
+from db.MySql import carregar_pontos, salvar_pontos
 from config.config_cargos import atribuir_cargo  # Importando atribuir_cargo
 
 def adicionar_pontos(tree, id_do_servidor):
@@ -15,17 +14,15 @@ def adicionar_pontos(tree, id_do_servidor):
         quantidade="A quantidade de pontos a adicionar"
     )
     async def adicionar_pontos(interaction: discord.Interaction, usuario: discord.Member, quantidade: int):
-        dados = carregar_dados()
         user_id = str(usuario.id)
-
-        # Adiciona os pontos ao usuário
-        if user_id in dados["pontos"]:
-            dados["pontos"][user_id] += quantidade
-        else:
-            dados["pontos"][user_id] = quantidade
         
-        salvar_dados(dados)  # Salva os dados no arquivo JSON
-
+        # Carregar pontos atuais do usuário
+        pontos_atuais = carregar_pontos(user_id) or 0  # Se não houver registro, começa com 0
+        
+        # Adiciona os pontos ao usuário
+        pontos_novos = pontos_atuais + quantidade
+        salvar_pontos(user_id, pontos_novos)  # Salva os dados no MySQL
+        
         # Atribui cargo automaticamente após adicionar pontos
         await atribuir_cargo(usuario)  # Certifique-se de chamar isso
 

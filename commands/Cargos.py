@@ -1,7 +1,6 @@
-# Comandos/cargos.py
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados, salvar_dados
+from db.MySql import carregar_cargos, salvar_cargos
 
 def cargos(tree, id_do_servidor):
     @tree.command(
@@ -15,26 +14,22 @@ def cargos(tree, id_do_servidor):
         max_pontos="A quantidade máxima de pontos para obter esse cargo (deixe em branco para remover o cargo)"
     )
     async def cargos(interaction: discord.Interaction, cargo: str, min_pontos: int = None, max_pontos: int = None):
-        dados = carregar_dados()
-
-        # Certifique-se de que a chave 'cargos' existe
-        if "cargos" not in dados:
-            dados["cargos"] = {}
+        dados_cargos = carregar_cargos()  # Carrega os cargos do banco de dados
 
         # Salve apenas o ID do cargo sem a menção
         cargo_id = cargo.strip('<@&>')  # Remove '<@&' e '>'
 
         if min_pontos is None and max_pontos is None:
-            # Se não foram fornecidos min e max, remove o cargo do JSON
-            if cargo_id in dados["cargos"]:
-                del dados["cargos"][cargo_id]  # Remove o cargo
+            # Se não foram fornecidos min e max, remove o cargo do banco de dados
+            if cargo_id in dados_cargos:
+                del dados_cargos[cargo_id]  # Remove o cargo
                 resposta = f"O cargo '<@&{cargo_id}>' foi removido!"
             else:
                 resposta = f"O cargo '<@&{cargo_id}>' não existe!"
         else:
             # Se os pontos mínimos ou máximos foram fornecidos, adiciona ou atualiza o cargo
-            dados["cargos"][cargo_id] = {"min": min_pontos, "max": max_pontos}
+            dados_cargos[cargo_id] = {"min": min_pontos, "max": max_pontos}
             resposta = f"O cargo '<@&{cargo_id}>' agora requer entre {min_pontos} e {max_pontos} pontos!"
 
-        salvar_dados(dados)  # Salva os dados no arquivo JSON
+        salvar_cargos(dados_cargos)  # Salva os dados no banco de dados
         await interaction.response.send_message(resposta, ephemeral=True)

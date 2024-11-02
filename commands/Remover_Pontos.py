@@ -1,7 +1,7 @@
 # Comandos/removerp.py
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados, salvar_dados
+from db.MySql import carregar_pontos, salvar_pontos
 from config.config_cargos import atribuir_cargo  # Importando atribuir_cargo
 
 def remover_pontos(tree, id_do_servidor):
@@ -15,16 +15,16 @@ def remover_pontos(tree, id_do_servidor):
         quantidade="A quantidade de pontos a remover"
     )
     async def remover_pontos(interaction: discord.Interaction, usuario: discord.Member, quantidade: int):
-        dados = carregar_dados()
         user_id = str(usuario.id)
 
-        # Verifica se o usuário tem pontos registrados e subtrai
-        if user_id in dados["pontos"]:
-            dados["pontos"][user_id] = max(0, dados["pontos"][user_id] - quantidade)  # Garante que o valor não fique negativo
-        else:
-            dados["pontos"][user_id] = 0  # Usuário não tinha pontos, então permanece com 0
+        # Carrega os pontos atuais do usuário, ou começa com 0 se não houver registro
+        pontos_atuais = carregar_pontos(user_id) or 0
 
-        salvar_dados(dados)  # Salva os dados no arquivo JSON
+        # Subtrai a quantidade, garantindo que o total não fique negativo
+        novos_pontos = max(0, pontos_atuais - quantidade)
+        
+        # Salva o novo valor de pontos no banco de dados
+        salvar_pontos(user_id, novos_pontos)
 
         # Atribui cargo automaticamente após remover pontos
         await atribuir_cargo(usuario)
