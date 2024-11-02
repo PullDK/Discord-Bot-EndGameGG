@@ -10,9 +10,10 @@ def carregar_dados():
                 return json.load(f)
             except json.JSONDecodeError:
                 # Retorna um dicionário padrão se houver um erro na leitura do JSON
-                return {"pontos": {}, "cargos": {}}
+                return {"pontos": {}, "cargos": {}, "regras": {"ganhar": {}, "perder": {}}}
+
     # Se o arquivo não existir, retorna um dicionário padrão
-    return {"pontos": {}, "cargos": {}}
+    return {"pontos": {}, "cargos": {}, "regras": {"ganhar": {}, "perder": {}}}
 
 def salvar_dados(dados):
     # Salva os dados no arquivo JSON
