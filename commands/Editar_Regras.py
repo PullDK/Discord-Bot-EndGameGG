@@ -1,6 +1,7 @@
+# Comandos/editar_regras.py
 import discord
 from discord import app_commands
-from db.MySql import carregar_regras, salvar_regras  # Atualize a importação conforme sua estrutura
+from db.Sqlite import carregar_regras, salvar_regras  # Atualizado para usar SQLite
 
 def editar_regras(tree, id_do_servidor):
     @tree.command(
@@ -19,18 +20,18 @@ def editar_regras(tree, id_do_servidor):
         dados = carregar_regras()
         
         # Verifica se o tipo da regra é válido
-        if tipo not in dados:
+        if tipo not in ['ganhar', 'perder']:
             await interaction.response.send_message("Tipo de regra inválido! Use 'ganhar' ou 'perder'.", ephemeral=True)
             return
         
         # Verifica se o ID da regra existe
-        if id_regra not in dados[tipo]:
+        if id_regra not in dados["regras"][tipo]:
             await interaction.response.send_message(f"ID da regra {id_regra} não encontrado em regras de {tipo}.", ephemeral=True)
             return
         
         # Atualiza os dados da regra
-        dados[tipo][id_regra]["pontos"] = novos_pontos
-        dados[tipo][id_regra]["descricao"] = nova_descricao
+        dados["regras"][tipo][id_regra]["pontos"] = novos_pontos
+        dados["regras"][tipo][id_regra]["descricao"] = nova_descricao
         
         # Salva os dados no banco de dados
         salvar_regras(dados)

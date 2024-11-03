@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from db.MySql import carregar_regras, salvar_regras
+from db.Sqlite import carregar_regras, salvar_regras  # Atualizado para usar SQLite
 
 def regras(tree, id_do_servidor):
     @tree.command(
@@ -9,12 +9,21 @@ def regras(tree, id_do_servidor):
         description='Gerencia as regras para ganhar ou perder pontos.'
     )
     async def regras_command(interaction: discord.Interaction, acao: str = None, tipo: str = None, pontos: str = None, *, descricao: str = None):
+        print(f"Ação: {acao}, Tipo: {tipo}, Pontos: {pontos}, Descrição: {descricao}")  # Mensagem de depuração
+
         # Carrega as regras do banco de dados
         dados = carregar_regras()
+        print(f"Dados carregados: {dados}")  # Verifique o que foi carregado
 
         # Inicializa as regras se não existirem
         if "regras" not in dados:
             dados["regras"] = {"ganhar": {}, "perder": {}}
+        
+        # Certifique-se de que a estrutura correta existe
+        if not dados["regras"].get("ganhar"):
+            dados["regras"]["ganhar"] = {}
+        if not dados["regras"].get("perder"):
+            dados["regras"]["perder"] = {}
 
         # Mostrar todas as regras se o comando for usado sem parâmetros
         if acao is None:
@@ -36,69 +45,75 @@ def regras(tree, id_do_servidor):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-
         # Adicionar regra
         if acao.lower() == "adicionar":
+            # Verifica se todos os parâmetros foram fornecidos
             if tipo is None or pontos is None or descricao is None:
                 await interaction.response.send_message("Você precisa fornecer o tipo (ganhar/perder), pontos e uma descrição para adicionar uma regra.", ephemeral=True)
                 return
-            
+
             try:
-                pontos = int(pontos)
+                pontos = int(pontos)  # Conversão para inteiro
             except ValueError:
                 await interaction.response.send_message("Os pontos devem ser um número válido.", ephemeral=True)
                 return
 
             # Determina a categoria da regra (ganhar ou perder)
-            categoria = "ganhar" if tipo.lower() == "ganhar" else "perder" if tipo.lower() == "perder" else None
-            
-            if categoria is None:
+            if tipo.lower() == "ganhar":
+                categoria = "ganhar"
+            elif tipo.lower() == "perder":
+                categoria = "perder"
+            else:
                 await interaction.response.send_message("Tipo inválido. Use 'ganhar' ou 'perder'.", ephemeral=True)
                 return
-            
+
             # Gera um ID único para a nova regra
             regra_id = str(len(dados["regras"][categoria]) + 1)  # Mantenha o ID como string
-            dados["regras"][categoria][regra_id] = {"pontos": pontos, "descricao": descricao}
 
-            salvar_regras(dados)  # Salva os dados no banco de dados
-            await interaction.response.send_message(f"Regra adicionada: {descricao} ({'+' if categoria == 'ganhar' else ''}{pontos} pontos).", ephemeral=True)
+            # Adiciona a nova regra ao dicionário
+            dados["regras"][categoria][regra_id] = {
+                "tipo": tipo,
+                "pontos": pontos,
+                "descricao": descricao
+            }
 
-        # Listar regras com IDs
-        elif acao.lower() == "id":
-            embed = discord.Embed(title="Regras", color=discord.Color.blue())
+            # Salva as regras no banco de dados
+            salvar_regras(dados["regras"])
 
-            # Adiciona regras de ganhar pontos
-            for regra_id, regra in dados["regras"]["ganhar"].items():
-                embed.add_field(name=f"ID {regra_id}: {regra['descricao']}", value=f"(+{regra['pontos']} pontos)", inline=False)
+            # Recarrega as regras para verificar se foram salvas
+            dados = carregar_regras()
+            print(f"Dados após salvar: {dados}")  # Verifique se os dados foram salvos corretamente
 
-            # Adiciona regras de perder pontos
-            for regra_id, regra in dados["regras"]["perder"].items():
-                embed.add_field(name=f"ID {regra_id}: {regra['descricao']}", value=f"(-{regra['pontos']} pontos)", inline=False)
-
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message("Regra adicionada com sucesso!", ephemeral=True)
 
         # Remover regra
-        elif acao.lower() == "retirar":
-            if tipo is None or pontos is None:
-                await interaction.response.send_message("Você precisa fornecer o tipo (ganhar/perder) e o ID da regra que deseja remover.", ephemeral=True)
+        elif acao.lower() == "remover":
+            # Verifica se todos os parâmetros foram fornecidos
+            if tipo is None or pontos is None or descricao is None:
+                await interaction.response.send_message("Você precisa fornecer o tipo (ganhar/perder), pontos e uma descrição para remover uma regra.", ephemeral=True)
                 return
-            
-            regra_id = str(pontos)  # Certifique-se de que o ID está como string
 
             # Determina a categoria da regra (ganhar ou perder)
-            categoria = "ganhar" if tipo.lower() == "ganhar" else "perder" if tipo.lower() == "perder" else None
-            
-            if categoria is None:
+            if tipo.lower() == "ganhar":
+                categoria = "ganhar"
+            elif tipo.lower() == "perder":
+                categoria = "perder"
+            else:
                 await interaction.response.send_message("Tipo inválido. Use 'ganhar' ou 'perder'.", ephemeral=True)
                 return
 
-            if regra_id in dados["regras"][categoria]:
-                descricao = dados["regras"][categoria][regra_id]["descricao"]
-                del dados["regras"][categoria][regra_id]  # Remove a regra
-                salvar_regras(dados)  # Salva os dados no banco de dados
-                await interaction.response.send_message(f"Regra removida: {descricao}.", ephemeral=True)
-            else:
-                await interaction.response.send_message(f"Regra com ID {regra_id} não encontrada na categoria '{tipo}'.", ephemeral=True)
+            if categoria not in dados["regras"] or not dados["regras"][categoria]:
+                await interaction.response.send_message("Não existem regras cadastradas para esse tipo.", ephemeral=True)
+                return
 
-        else:
-            await interaction.response.send_message("Ação inválida. Use 'adicionar', 'id' ou 'retirar'.", ephemeral=True)
+            # Encontra e remove a regra
+            for regra_id, regra in list(dados["regras"][categoria].items()):
+                if regra["descricao"] == descricao and regra["pontos"] == pontos:
+                    del dados["regras"][categoria][regra_id]
+                    salvar_regras(dados["regras"])
+                    await interaction.response.send_message("Regra removida com sucesso!", ephemeral=True)
+                    return
+
+            await interaction.response.send_message("Regra não encontrada.", ephemeral=True)
+
+    return regras_command

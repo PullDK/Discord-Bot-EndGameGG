@@ -8,6 +8,7 @@ from commands.Regras import regras
 from commands.Comandos import comandos
 from commands.Editar_Regras import editar_regras
 from ApiKey import key, dc
+from db.Sqlite import criar_tabelas
 import json
 import os
 
@@ -42,6 +43,7 @@ tree = app_commands.CommandTree(aclient)
 
 # Inicializa os dados antes de registrar comandos
 inicializar_dados()
+criar_tabelas()
 
 # Registra os comandos
 pontos(tree, id_do_servidor)

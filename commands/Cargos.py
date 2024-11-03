@@ -1,6 +1,7 @@
+# Comandos/cargos.py
 import discord
 from discord import app_commands
-from db.MySql import carregar_cargos, salvar_cargos
+from db.Sqlite import carregar_cargos, salvar_cargos  # Atualizado para usar SQLite
 
 def cargos(tree, id_do_servidor):
     @tree.command(

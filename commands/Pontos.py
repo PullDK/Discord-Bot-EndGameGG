@@ -1,6 +1,7 @@
+# commands/Pontos.py
 import discord
 from discord import app_commands
-from db.MySql import carregar_todos_pontos, carregar_cargos  # Use a nova função
+from db.Sqlite import carregar_pontos, carregar_cargos  # Atualizado para usar SQLite
 
 def pontos(tree, id_do_servidor):
     @tree.command(
@@ -13,7 +14,7 @@ def pontos(tree, id_do_servidor):
         embed = discord.Embed(title="Usuários e Cargos", color=discord.Color.blue())
 
         # Carrega todos os pontos e cargos do banco de dados
-        dados_pontos = carregar_todos_pontos()  # Use a nova função
+        dados_pontos = carregar_pontos()  # Use a função correta
         dados_cargos = carregar_cargos()
 
         if not dados_pontos:
