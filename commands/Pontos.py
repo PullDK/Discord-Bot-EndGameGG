@@ -1,7 +1,7 @@
 # commands/pontos.py
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados
+from DataBase.pontos import carregar_dados
 
 def pontos(tree, id_do_servidor):
     @tree.command(

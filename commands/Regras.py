@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from db.pontos import carregar_dados, salvar_dados
+from DataBase.pontos import carregar_dados, salvar_dados
 
 def regras(tree, id_do_servidor):
     @tree.command(

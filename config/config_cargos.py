@@ -1,6 +1,6 @@
 # Comandos/cargos.py
 import discord
-from db.pontos import carregar_dados
+from DataBase.pontos import carregar_dados
 
 async def atribuir_cargo(usuario: discord.Member):
     dados = carregar_dados()
